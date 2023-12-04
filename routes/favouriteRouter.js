@@ -4,7 +4,7 @@ const {getAll, addItem, deleteItem} = require('../controllers/favouriteControlle
 
 
 
-router.post('/', getAll)
+router.get('/', getAll)
 router.post('/add', addItem)
 router.delete('/', deleteItem)
 

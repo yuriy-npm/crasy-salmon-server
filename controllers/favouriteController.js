@@ -29,7 +29,18 @@ const getAll = async (req, res) => {
 };
 
 const addItem = async (req, res) => {
-  const { productId, userId } = req.body;
+
+  const token = req.headers.authorization || "";
+  let userId = null;
+
+  if (!token) {
+    return res.status(401).json({ message: "Користувач не авторізован!" });
+  }
+
+  const decoded = jwt.verify(token, process.env.SECRET_KEY);
+  userId = decoded.data;
+  
+  const { productId} = req.body;
   await Favourite.create({
     userId,
     productId,
@@ -38,7 +49,7 @@ const addItem = async (req, res) => {
   const favouriteItem = await Favourite.findOne({
     raw: true,
     where: { userId, productId },
-    attributes: ["product.id","product.title", "product.imageUrl", "product.price"],
+    attributes: ["productId","product.title", "product.imageUrl", "product.price"],
     include: [
       {
         model: Product,
@@ -51,8 +62,19 @@ const addItem = async (req, res) => {
 };
 
 const deleteItem = async (req, res) => {
+  
+  const { productId } = req.query;
 
-  const { productId, userId } = req.query;
+  const token = req.headers.authorization || "";
+  let userId = null;
+
+  if (!token) {
+    return res.status(401).json({ message: "Користувач не авторізован!" });
+  }
+
+  const decoded = jwt.verify(token, process.env.SECRET_KEY);
+  userId = decoded.data;
+
 
   const removedItem = await Favourite.destroy({
     where: {
